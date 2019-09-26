@@ -20,6 +20,9 @@
 
 ``` ./waf -d debug --enable-examples configure ```
 
+5. Compile the simulator.
+``` ./waf ```
+
 ## ECN# Implementation
 
 The ECN# (ECN Sharp)'s implementation is here:
