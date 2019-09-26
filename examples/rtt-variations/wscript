@@ -1,0 +1,14 @@
+## -*- Mode: python; py-indent-offset: 4; indent-tabs-mode: nil; coding: utf-8; -*-
+
+def build(bld):
+    obj = bld.create_ns3_program('mq',
+                                 ['point-to-point', 'applications', 'internet', 'flow-monitor', 'link-monitor'])
+    obj.source = ['mq.cc', 'cdf.c']
+
+    obj = bld.create_ns3_program('large-scale',
+                                 ['point-to-point', 'applications', 'internet', 'flow-monitor', 'link-monitor'])
+    obj.source = ['large-scale.cc', 'cdf.c']
+
+    obj = bld.create_ns3_program('queue-track',
+                                 ['point-to-point', 'applications', 'internet', 'flow-monitor', 'link-monitor'])
+    obj.source = ['queue-track.cc', 'cdf.c']
