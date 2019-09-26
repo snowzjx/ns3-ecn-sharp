@@ -24,6 +24,14 @@
 
 ``` ./waf ```
 
+## Docker Image
+
+You can also directly use our docker image for this simulator.
+
+``` docker run -it snowzjx/ns3-ecn-sharp:optimized ```
+
+``` cd ~/ns3-ecn-sharp ```
+
 ## ECN# Implementation
 
 The ECN# (ECN Sharp)'s implementation is here:
