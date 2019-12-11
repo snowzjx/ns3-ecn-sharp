@@ -27,7 +27,7 @@ Please cite either of the following papers if you are using our simulator. Thank
 
 ``` docker run -it gcc:4.9 ```
 
-2. Clone the proejct.
+2. Clone the project.
 
 ``` git clone git@github.com:snowzjx/ns3-ecn-sharp.git ```
 
