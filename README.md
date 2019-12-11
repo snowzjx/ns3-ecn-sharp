@@ -1,5 +1,11 @@
 # ns3 Simulator for ECN#
 
+## Papers that use this simulator
+
+[Enabling ECN for Datacenter Networks with RTT Variations (CoNEXT 19)](https://dl.acm.org/authorize.cfm?key=N690741)
+[Resilient Datacenter Load Balancing in the Wild (SIGCOMM 17)](http://www.cse.ust.hk/~kaichen/papers/hermes-sigcomm17.pdf)
+[PURR: a primitive for reconfigurable fast reroute: hope for the best and program for the worst (CoNEXT 19)](https://dl.acm.org/authorize?N690721)
+
 ## Download and Compile
 
 1. Ubuntu + gcc-4.9 has been verified to compatiable with the project.
@@ -283,6 +289,3 @@ We have implemented the following transportation protocols, tc modules and load 
 ### Routing 
 
 1. [XPath](http://www.cse.ust.hk/~kaichen/papers/xpath-nsdi15.pdf)
-
-## Others
-This project is based on [snowzjx/ns3-load-balance](https://github.com/snowzjx/ns3-load-balance) for the SIGCOMM 2017 paper, [Resilient Datacenter Load Balancing in the Wild](http://www.cse.ust.hk/~kaichen/papers/hermes-sigcomm17.pdf).
