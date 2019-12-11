@@ -8,6 +8,19 @@
 
 [PURR: a primitive for reconfigurable fast reroute: hope for the best and program for the worst (CoNEXT 19)](https://dl.acm.org/authorize?N690721)
 
+Please cite either of the following papers if you are using our simulator. Thanks! :P
+
+```
+@inproceedings{zhang2017resilient,
+  title={Resilient datacenter load balancing in the wild},
+  author={Zhang, Hong and Zhang, Junxue and Bai, Wei and Chen, Kai and Chowdhury, Mosharaf},
+  booktitle={Proceedings of the Conference of the ACM Special Interest Group on Data Communication},
+  pages={253--266},
+  year={2017},
+  organization={ACM}
+}
+```
+
 ## Download and Compile
 
 1. Ubuntu + gcc-4.9 has been verified to compatiable with the project.
