@@ -21,6 +21,17 @@ Please cite either of the following papers if you are using our simulator. Thank
 }
 ```
 
+```
+@inproceedings{zhang2019enabling,
+  title={Enabling ECN for datacenter networks with RTT variations},
+  author={Zhang, Junxue and Bai, Wei and Chen, Kai},
+  booktitle={Proceedings of the 15th International Conference on Emerging Networking Experiments And Technologies},
+  pages={233--245},
+  year={2019},
+  organization={ACM}
+}
+```
+
 ## Download and Compile
 
 1. Ubuntu + gcc-4.9 has been verified to compatiable with the project.
