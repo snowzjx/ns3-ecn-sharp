@@ -8,7 +8,7 @@
 
 [PURR: a primitive for reconfigurable fast reroute: hope for the best and program for the worst (CoNEXT 19)](https://dl.acm.org/authorize?N690721)
 
-Please cite either of the following papers if you are using our simulator. Thanks! :P
+Please cite both of the following papers if you are using our simulator. Thanks! :P
 
 ```
 @inproceedings{zhang2017resilient,
