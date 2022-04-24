@@ -64,6 +64,38 @@ private:
   virtual int32_t DoClassify (Ptr<QueueDiscItem> item) const;
 };
 
+class Ipv4SimpleDelayFilter: public Ipv4PacketFilter {
+public:
+public:
+  /**
+   * \brief Get the type ID.
+   * \return the object TypeId
+   */
+  static TypeId GetTypeId (void);
+
+  Ipv4SimpleDelayFilter ();
+  virtual ~Ipv4SimpleDelayFilter ();
+
+private:
+  virtual int32_t DoClassify (Ptr<QueueDiscItem> item) const;
+};
+
+class Ipv4SimplePiasFilter: public Ipv4PacketFilter {
+public:
+public:
+  /**
+   * \brief Get the type ID.
+   * \return the object TypeId
+   */
+  static TypeId GetTypeId (void);
+
+  Ipv4SimplePiasFilter ();
+  virtual ~Ipv4SimplePiasFilter ();
+
+private:
+  virtual int32_t DoClassify (Ptr<QueueDiscItem> item) const;
+};
+
 
 /**
  * \ingroup internet

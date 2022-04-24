@@ -93,6 +93,74 @@ Ipv4SimplePacketFilter::DoClassify (Ptr<QueueDiscItem> item) const
 
 // ------------------------------------------------------------------------- //
 
+NS_OBJECT_ENSURE_REGISTERED (Ipv4SimpleDelayFilter);
+
+TypeId
+Ipv4SimpleDelayFilter::GetTypeId (void)
+{
+  static TypeId tid = TypeId ("ns3::Ipv4SimpleDelayFilter")
+    .SetParent<Ipv4PacketFilter> ()
+    .SetGroupName ("Internet")
+  ;
+  return tid;
+}
+
+Ipv4SimpleDelayFilter::Ipv4SimpleDelayFilter ()
+{
+    NS_LOG_FUNCTION (this);
+}
+
+Ipv4SimpleDelayFilter::~Ipv4SimpleDelayFilter ()
+{
+    NS_LOG_FUNCTION (this);
+}
+
+int32_t
+Ipv4SimpleDelayFilter::DoClassify (Ptr<QueueDiscItem> item) const
+{
+  NS_LOG_FUNCTION (this << item);
+  Ptr<Ipv4QueueDiscItem> ipv4Item = DynamicCast<Ipv4QueueDiscItem> (item);
+  uint8_t tos = ipv4Item->GetHeader ().GetTos ();
+  uint8_t delayCategory = tos >> 2 >> 3;
+  return static_cast<int32_t> (delayCategory);
+}
+// ------------------------------------------------------------------------- //
+
+NS_OBJECT_ENSURE_REGISTERED (Ipv4SimplePiasFilter);
+
+TypeId
+Ipv4SimplePiasFilter::GetTypeId (void)
+{
+  static TypeId tid = TypeId ("ns3::Ipv4SimplePiasFilter")
+    .SetParent<Ipv4PacketFilter> ()
+    .SetGroupName ("Internet")
+  ;
+  return tid;
+}
+
+Ipv4SimplePiasFilter::Ipv4SimplePiasFilter ()
+{
+    NS_LOG_FUNCTION (this);
+}
+
+Ipv4SimplePiasFilter::~Ipv4SimplePiasFilter ()
+{
+    NS_LOG_FUNCTION (this);
+}
+
+int32_t
+Ipv4SimplePiasFilter::DoClassify (Ptr<QueueDiscItem> item) const
+{
+  NS_LOG_FUNCTION (this << item);
+  Ptr<Ipv4QueueDiscItem> ipv4Item = DynamicCast<Ipv4QueueDiscItem> (item);
+  uint8_t tos = ipv4Item->GetHeader ().GetTos ();
+  uint8_t piasCategory = (tos >> 2) & 0x000111;
+  return static_cast<int32_t> (piasCategory);
+}
+
+// ------------------------------------------------------------------------- //
+
+
 NS_OBJECT_ENSURE_REGISTERED (PfifoFastIpv4PacketFilter);
 
 TypeId
