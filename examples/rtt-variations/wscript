@@ -9,6 +9,10 @@ def build(bld):
                                  ['point-to-point', 'applications', 'internet', 'flow-monitor', 'link-monitor'])
     obj.source = ['large-scale.cc', 'cdf.c']
 
+    obj = bld.create_ns3_program('large-scale-pias',
+                                 ['point-to-point', 'applications', 'internet', 'flow-monitor', 'link-monitor'])
+    obj.source = ['large-scale-pias.cc', 'cdf.c']
+
     obj = bld.create_ns3_program('queue-track',
                                  ['point-to-point', 'applications', 'internet', 'flow-monitor', 'link-monitor'])
     obj.source = ['queue-track.cc', 'cdf.c']
