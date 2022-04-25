@@ -29,7 +29,7 @@ static uint16_t PORT = 1000;
 
 using namespace ns3;
 
-NS_LOG_COMPONENT_DEFINE ("LargeScale");
+NS_LOG_COMPONENT_DEFINE ("LargeScalePias");
 
 enum AQM {
   TCN,
@@ -49,54 +49,6 @@ template<typename T>
 T rand_range (T min, T max)
 {
   return min + ((double)max - min) * rand () / RAND_MAX;
-}
-
-void install_incast_applications (NodeContainer servers, long &flowCount, int SERVER_COUNT, int LEAF_COUNT, double START_TIME, double END_TIME, double FLOW_LAUNCH_END_TIME)
-{
-  NS_LOG_INFO ("Install incast applications:");
-  for (int i = 0; i < SERVER_COUNT; i++)
-    {
-      Ptr<Node> destServer = servers.Get (i);
-      Ptr<Ipv4> ipv4 = destServer->GetObject<Ipv4> ();
-      Ipv4InterfaceAddress destInterface = ipv4->GetAddress (1,0);
-      Ipv4Address destAddress = destInterface.GetLocal ();
-
-      uint32_t fanout = rand () % 50 + 100;
-      for (uint32_t j = 0; j < fanout; j++)
-        {
-          double startTime = START_TIME + static_cast<double> (rand () % 100) / 1000000;
-          while (startTime < FLOW_LAUNCH_END_TIME)
-            {
-              flowCount ++;
-              uint32_t fromServerIndex = rand () % SERVER_COUNT;
-              uint16_t port = PORT++;
-
-              BulkSendPiasHelper source ("ns3::TcpSocketFactory", InetSocketAddress (destAddress, port));
-              uint32_t flowSize = rand () % 10000;
-              uint32_t tos = rand() % 5;
-
-              source.SetAttribute ("SendSize", UintegerValue (PACKET_SIZE));
-              source.SetAttribute ("MaxBytes", UintegerValue(flowSize));
-              source.SetAttribute ("SimpleTOS", UintegerValue (tos));
-
-              // Install apps
-              ApplicationContainer sourceApp = source.Install (servers.Get (fromServerIndex));
-              sourceApp.Start (Seconds (startTime));
-              sourceApp.Stop (Seconds (END_TIME));
-
-              // Install packet sinks
-              PacketSinkHelper sink ("ns3::TcpSocketFactory",
-                                     InetSocketAddress (Ipv4Address::GetAny (), port));
-              ApplicationContainer sinkApp = sink.Install (servers. Get (i));
-              sinkApp.Start (Seconds (START_TIME));
-              sinkApp.Stop (Seconds (END_TIME));
-
-              startTime += static_cast<double> (rand () % 1000) / 1000000;
-            }
-
-        }
-
-    }
 }
 
 void install_applications (int fromLeafId, NodeContainer servers, double requestRate, struct cdf_table *cdfTable,
@@ -126,13 +78,14 @@ void install_applications (int fromLeafId, NodeContainer servers, double request
 
           BulkSendPiasHelper source ("ns3::TcpSocketFactory", InetSocketAddress (destAddress, port));
           uint32_t flowSize = gen_random_cdf (cdfTable);
-          uint32_t tos = rand() % 5;
+          uint32_t deplayClass = rand() % 5;
 
           totalFlowSize += flowSize;
 
+          source.SetAttribute ("PiasThreshold", UintegerValue (PACKET_SIZE * 100));
           source.SetAttribute ("SendSize", UintegerValue (PACKET_SIZE));
           source.SetAttribute ("MaxBytes", UintegerValue(flowSize));
-          source.SetAttribute ("SimpleTOS", UintegerValue (tos));
+          source.SetAttribute ("DelayClass", UintegerValue (deplayClass));
 
           // Install apps
           ApplicationContainer sourceApp = source.Install (servers.Get (fromServerIndex));
@@ -154,7 +107,7 @@ void install_applications (int fromLeafId, NodeContainer servers, double request
 int main (int argc, char *argv[])
 {
 #if 1
-  LogComponentEnable ("LargeScale", LOG_LEVEL_INFO);
+  LogComponentEnable ("LargeScalePias", LOG_LEVEL_INFO);
 #endif
 
   // Command line parameters parsing
@@ -318,7 +271,7 @@ int main (int argc, char *argv[])
           //TODO We should change this, at endhost we are not going to mark ECN but add delay using delay queue disc
 
           Ptr<DelayQueueDisc> delayQueueDisc = CreateObject<DelayQueueDisc> ();
-          Ptr<Ipv4SimplePacketFilter> filter = CreateObject<Ipv4SimplePacketFilter> ();
+          Ptr<Ipv4SimpleDelayFilter> filter = CreateObject<Ipv4SimpleDelayFilter> ();
 
           delayQueueDisc->AddPacketFilter (filter);
 
@@ -342,7 +295,6 @@ int main (int argc, char *argv[])
 
           Ptr<NetDevice> netDevice0 = netDeviceContainer.Get (0);
           Ptr<TrafficControlLayer> tcl0 = netDevice0->GetNode ()->GetObject<TrafficControlLayer> ();
-
           delayQueueDisc->SetNetDevice (netDevice0);
           tcl0->SetRootQueueDiscOnDevice (netDevice0, delayQueueDisc);
 
@@ -374,31 +326,57 @@ int main (int argc, char *argv[])
 
               NodeContainer nodeContainer = NodeContainer (leaves.Get (i), spines.Get (j));
               NetDeviceContainer netDeviceContainer = p2p.Install (nodeContainer);
-              ObjectFactory switchSideQueueFactory;
 
+              Ptr<SPQueueDisc> leafQueueDisc = CreateObject<SPQueueDisc> ();
+              Ptr<SPQueueDisc> spineQueueDisc = CreateObject<SPQueueDisc> ();
+              
+              ObjectFactory innerQueueFactory;
               if (aqm == TCN)
-                {
-                  switchSideQueueFactory.SetTypeId ("ns3::TCNQueueDisc");
-                }
+              {
+                innerQueueFactory.SetTypeId ("ns3::TCNQueueDisc");
+              }
               else
-                {
-                  switchSideQueueFactory.SetTypeId ("ns3::ECNSharpQueueDisc");
-                }
+              {
+                innerQueueFactory.SetTypeId ("ns3::ECNSharpQueueDisc");
+              }
 
-              Ptr<QueueDisc> leafQueueDisc = switchSideQueueFactory.Create<QueueDisc> ();
+              Ptr<QueueDisc> leafQueueDisc0 = innerQueueFactory.Create<QueueDisc> ();
+              Ptr<QueueDisc> leafQueueDisc1 = innerQueueFactory.Create<QueueDisc> ();
+              Ptr<QueueDisc> leafQueueDisc2 = innerQueueFactory.Create<QueueDisc> ();
+              Ptr<QueueDisc> leafQueueDisc3 = innerQueueFactory.Create<QueueDisc> ();
+
+              Ptr<Ipv4SimplePiasFilter> leafFilter = CreateObject<Ipv4SimplePiasFilter> ();
+              leafQueueDisc->AddPacketFilter (leafFilter);
+              leafQueueDisc->AddSPClass(leafQueueDisc0, 0, 10);
+              leafQueueDisc->AddSPClass(leafQueueDisc1, 1, 8);
+              leafQueueDisc->AddSPClass(leafQueueDisc2, 2, 6);
+              leafQueueDisc->AddSPClass(leafQueueDisc3, 3, 0);
+
+              Ptr<QueueDisc> spineQueueDisc0 = innerQueueFactory.Create<QueueDisc> ();
+              Ptr<QueueDisc> spineQueueDisc1 = innerQueueFactory.Create<QueueDisc> ();
+              Ptr<QueueDisc> spineQueueDisc2 = innerQueueFactory.Create<QueueDisc> ();
+              Ptr<QueueDisc> spineQueueDisc3 = innerQueueFactory.Create<QueueDisc> ();
+
+              Ptr<Ipv4SimplePiasFilter> spineFilter = CreateObject<Ipv4SimplePiasFilter> ();
+              spineQueueDisc->AddPacketFilter (spineFilter);
+              spineQueueDisc->AddSPClass(spineQueueDisc0, 0, 10);
+              spineQueueDisc->AddSPClass(spineQueueDisc1, 1, 8);
+              spineQueueDisc->AddSPClass(spineQueueDisc2, 2, 6);
+              spineQueueDisc->AddSPClass(spineQueueDisc3, 3, 0);
 
               Ptr<NetDevice> netDevice0 = netDeviceContainer.Get (0);
               Ptr<TrafficControlLayer> tcl0 = netDevice0->GetNode ()->GetObject<TrafficControlLayer> ();
               leafQueueDisc->SetNetDevice (netDevice0);
               tcl0->SetRootQueueDiscOnDevice (netDevice0, leafQueueDisc);
 
-              Ptr<QueueDisc> spineQueueDisc = switchSideQueueFactory.Create<QueueDisc> ();
 
               Ptr<NetDevice> netDevice1 = netDeviceContainer.Get (1);
               Ptr<TrafficControlLayer> tcl1 = netDevice1->GetNode ()->GetObject<TrafficControlLayer> ();
               spineQueueDisc->SetNetDevice (netDevice1);
               tcl1->SetRootQueueDiscOnDevice (netDevice1, spineQueueDisc);
 
+              TrafficControlHelper tc;
+              tc.SetRootQueueDisc ("ns3::PfifoFastQueueDisc", "Limit", UintegerValue (BUFFER_SIZE));
 
               Ipv4InterfaceContainer ipv4InterfaceContainer = ipv4.Assign (netDeviceContainer);
               NS_LOG_INFO ("Leaf - " << i << " is connected to Spine - " << j << " with address "

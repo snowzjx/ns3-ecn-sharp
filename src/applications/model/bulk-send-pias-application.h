@@ -73,7 +73,8 @@ private:
 
   uint32_t        m_tos;
 
-  uint32_t        m_piasqPrio;
+  uint32_t        m_piasPrio;
+  uint32_t        m_piasSent;
   uint32_t        m_piasThreshold;
   uint32_t        m_delayClass;
 

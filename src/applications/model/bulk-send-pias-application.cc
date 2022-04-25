@@ -56,6 +56,11 @@ BulkSendPiasApplication::GetTypeId (void)
                    UintegerValue (0),
                    MakeUintegerAccessor (&BulkSendPiasApplication::m_delayClass),
                    MakeUintegerChecker<uint32_t> ())
+    .AddAttribute ("PiasThreshold",
+                   "Which delay group the flow should be in",
+                   UintegerValue (0),
+                   MakeUintegerAccessor (&BulkSendPiasApplication::m_piasThreshold),
+                   MakeUintegerChecker<uint32_t> ())
     .AddAttribute ("Protocol", "The type of protocol to use.",
                    TypeIdValue (TcpSocketFactory::GetTypeId ()),
                    MakeTypeIdAccessor (&BulkSendPiasApplication::m_tid),
@@ -73,7 +78,10 @@ BulkSendPiasApplication::BulkSendPiasApplication ()
     m_connected (false),
     m_totBytes (0),
     m_isDelay (false),
-    m_accumPackets (0)
+    m_accumPackets (0),
+    m_piasPrio (0),
+    m_piasSent (0),
+    m_piasThreshold (0)
 {
   NS_LOG_FUNCTION (this);
 }
@@ -187,6 +195,18 @@ void BulkSendPiasApplication::SendData (void)
         }
       NS_LOG_LOGIC ("sending packet at " << Simulator::Now ());
       Ptr<Packet> packet = Create<Packet> (toSend);
+
+      // Calculate the tos filed based on 
+      // 1. Delay class
+      // 2. PIAS configuration
+
+      if (m_piasSent > m_piasThreshold && m_piasPrio < 8) {
+        m_piasPrio ++;
+        m_piasSent = 0;
+      }
+
+      m_tos = (m_delayClass << 3) + m_piasPrio;
+      
       SocketIpTosTag tosTag;
       tosTag.SetTos (m_tos << 2);
       packet->AddPacketTag (tosTag);
@@ -196,6 +216,7 @@ void BulkSendPiasApplication::SendData (void)
         {
           m_totBytes += actual;
           m_accumPackets ++;
+          m_piasSent += actual;
         }
 
       // We exit this loop when actual < toSend as the send side
