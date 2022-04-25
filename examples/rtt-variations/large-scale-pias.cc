@@ -438,7 +438,7 @@ int main (int argc, char *argv[])
 
   std::stringstream flowMonitorFilename;
 
-  flowMonitorFilename << "Large_Scale_" <<id << "_" << LEAF_COUNT << "X" << SPINE_COUNT << "_" << aqmStr << "_"  << transportProt << "_" << load << ".xml";
+  flowMonitorFilename << "Large_Scale_PIAS_" <<id << "_" << LEAF_COUNT << "X" << SPINE_COUNT << "_" << aqmStr << "_"  << transportProt << "_" << load << ".xml";
 
 
   NS_LOG_INFO ("Start simulation");
