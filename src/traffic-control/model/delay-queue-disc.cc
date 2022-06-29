@@ -29,7 +29,7 @@ namespace ns3 {
   DelayQueueDisc::GetTypeId (void)
   {
     static TypeId tid = TypeId ("ns3::DelayQueueDisc")
-      .SetParent<Object> ()
+      .SetParent<QueueDisc> ()
       .SetGroupName ("TrafficControl")
       .AddConstructor<DelayQueueDisc> ()
       ;
