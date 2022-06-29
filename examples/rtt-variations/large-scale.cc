@@ -312,7 +312,7 @@ int main (int argc, char *argv[])
       for (int j = 0; j < SERVER_COUNT; j++)
         {
           int serverIndex = i * SERVER_COUNT + j;
-          NodeContainer nodeContainer = NodeContainer (leaves.Get (i), servers.Get (serverIndex));
+          NodeContainer nodeContainer = NodeContainer (servers.Get (serverIndex), leaves.Get (i));
           NetDeviceContainer netDeviceContainer = p2p.Install (nodeContainer);
 
           //TODO We should change this, at endhost we are not going to mark ECN but add delay using delay queue disc
